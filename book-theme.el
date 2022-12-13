@@ -1,0 +1,46 @@
+(defun powerline-book-theme ()
+  (interactive)
+  (setq-default mode-line-format
+                '("%e"
+                  (:eval
+                   (let* ((active (powerline-selected-window-active))
+                          (mode-line (if active 'mode-line 'mode-line-inactive))
+                          (face0 (if active 'powerline-active0 'powerline-inactive0))
+                          (face1 (if active 'powerline-active1 'powerline-inactive1))
+                          (face2 (if active 'powerline-active2 'powerline-inactive2))
+                          (separator-left (intern (format "powerline-%s-%s"
+                                                          (powerline-current-separator)
+                                                          (car powerline-default-separator-dir))))
+                          (separator-right (intern (format "powerline-%s-%s"
+                                                           (powerline-current-separator)
+                                                           (cdr powerline-default-separator-dir))))
+                          (lhs (list (when powerline-display-hud
+                                       (powerline-hud face1 face0))
+                                     (powerline-raw "%l %C " face0 'l)
+                                     (powerline-buffer-id `(mode-line-buffer-id ,face1) 'l)
+                                     (when buffer-read-only
+                                       (powerline-raw "" face1))
+                                     (when (buffer-modified-p)
+                                       (powerline-raw "*" face1))
+                                     (powerline-raw " " face1 'l)
+                                     (powerline-raw " %z " face0)
+                                     (powerline-major-mode face0)
+                                     (powerline-raw "  " face0 'l)
+                                     (powerline-process face0)
+                                     ;; (powerline-raw (concat "[" (mode-line-eol-desc) "]") face0)
+                                     (when (and (boundp 'which-func-mode) which-func-mode)
+                                       (powerline-raw which-func-format nil 'l))
+                                     (when (and (boundp 'erc-track-minor-mode) erc-track-minor-mode)
+                                       (powerline-raw erc-modified-channels-object face1 'l))
+                                     (powerline-minor-modes face0)
+                                     (powerline-raw "%n" face0)
+                                     (when (and vc-mode buffer-file-name)
+                                       (let ((backend (vc-backend buffer-file-name)))
+                                         (when backend
+                                           (concat (powerline-raw "[" face0 'l)
+                                                   (powerline-raw (format "%s / %s" backend (vc-working-revision buffer-file-name backend)) face0)
+                                                   (powerline-raw "]" face0)))))))
+                          (rhs (list (powerline-fill face0 0))))
+                     (concat (powerline-render lhs)
+                             (powerline-fill face0 (powerline-width rhs))
+                             (powerline-render rhs)))))))
